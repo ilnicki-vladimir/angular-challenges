@@ -1,0 +1,9 @@
+<app-card
+  class="bg-light-green"
+  [list]="students()"
+  [entityRef]="studentRef"
+  (addNewItemEvent)="addNewItem()"
+  (deleteEvent)="deleteItem($event)">
+  <img src="assets/img/student.webp" width="200px" />
+</app-card>
+<ng-template #studentRef let-student>{{ student.lastName }}</ng-template>

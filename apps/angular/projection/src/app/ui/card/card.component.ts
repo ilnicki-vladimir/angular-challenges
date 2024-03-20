@@ -1,61 +1,35 @@
-import { NgFor, NgIf } from '@angular/common';
-import { Component, Input } from '@angular/core';
-import { randStudent, randTeacher } from '../../data-access/fake-http.service';
-import { StudentStore } from '../../data-access/student.store';
-import { TeacherStore } from '../../data-access/teacher.store';
-import { CardType } from '../../model/card.model';
+import { CommonModule, NgFor, NgIf } from '@angular/common';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+  TemplateRef,
+} from '@angular/core';
+import { Entity } from '../../model/entity.model';
 import { ListItemComponent } from '../list-item/list-item.component';
 
 @Component({
   selector: 'app-card',
-  template: `
-    <div
-      class="flex w-fit flex-col gap-3 rounded-md border-2 border-black p-4"
-      [class]="customClass">
-      <img
-        *ngIf="type === CardType.TEACHER"
-        src="assets/img/teacher.png"
-        width="200px" />
-      <img
-        *ngIf="type === CardType.STUDENT"
-        src="assets/img/student.webp"
-        width="200px" />
-
-      <section>
-        <app-list-item
-          *ngFor="let item of list"
-          [name]="item.firstName"
-          [id]="item.id"
-          [type]="type"></app-list-item>
-      </section>
-
-      <button
-        class="rounded-sm border border-blue-500 bg-blue-300 p-2"
-        (click)="addNewItem()">
-        Add
-      </button>
-    </div>
-  `,
+  templateUrl: 'card.component.html',
   standalone: true,
-  imports: [NgIf, NgFor, ListItemComponent],
+  styleUrl: 'card.component.scss',
+  imports: [NgIf, NgFor, ListItemComponent, CommonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CardComponent {
-  @Input() list: any[] | null = null;
-  @Input() type!: CardType;
-  @Input() customClass = '';
+  @Output() addNewItemEvent = new EventEmitter<void>();
+  @Output() deleteEvent = new EventEmitter<Entity['id']>();
 
-  CardType = CardType;
-
-  constructor(
-    private teacherStore: TeacherStore,
-    private studentStore: StudentStore,
-  ) {}
+  @Input() list: Entity[] = [];
+  @Input({ required: true }) entityRef!: TemplateRef<any>;
 
   addNewItem() {
-    if (this.type === CardType.TEACHER) {
-      this.teacherStore.addOne(randTeacher());
-    } else if (this.type === CardType.STUDENT) {
-      this.studentStore.addOne(randStudent());
-    }
+    this.addNewItemEvent.emit();
+  }
+
+  delete(id: Entity['id']) {
+    this.deleteEvent.emit(id);
   }
 }
